@@ -10,9 +10,16 @@ public class PlayerMovement : MonoBehaviour
     public LayerMask floorLayerMask;
     private NavMeshAgent playerAgent;
 
+    private SphereOverlapSelector sOverlapSelector;
+    private GameObjectRayProvider rayProvider;
+
+    private Transform previousSelection;
+
     private void Start()
     {
         playerAgent = GetComponent<NavMeshAgent>();
+        sOverlapSelector = GetComponent<SphereOverlapSelector>();
+        rayProvider = GetComponent<GameObjectRayProvider>();
     }
 
     // Update is called once per frame
@@ -22,6 +29,51 @@ public class PlayerMovement : MonoBehaviour
         {
             MovePlayer();
         }
+
+        CheckForSelectables();
+
+    }
+
+    private void CheckForSelectables()
+    {
+        sOverlapSelector.CheckAt(transform.position);
+        Transform currentSelection = sOverlapSelector.GetSelection();
+        if (currentSelection != null)
+        {
+            // Check if the selection is a new one
+            if (currentSelection != previousSelection)
+            {
+                Debug.Log("New Selection found!");
+                // Deselect the previous selection if it exists
+                if (previousSelection != null)
+                {
+                    Deselect(previousSelection);
+                }
+
+                Select(currentSelection);
+
+                previousSelection = currentSelection;
+            }
+        }
+        else if (previousSelection != null)
+        {
+            Deselect(previousSelection);
+            previousSelection = null;
+        }
+    }
+
+    private static void Select(Transform selected)
+    {
+        var newSelectionResponse = selected.GetComponent<SelectionResponse>();
+        newSelectionResponse.OnSelect(selected);
+        Debug.Log($"Selected {selected.name}");
+    }
+
+    private void Deselect(Transform transform)
+    {
+        var lastSelectionResponse = transform.GetComponent<SelectionResponse>();
+        lastSelectionResponse.OnDeselect(transform);
+        Debug.Log($"Deselected {transform.name}");
     }
 
     public bool MovePlayer()

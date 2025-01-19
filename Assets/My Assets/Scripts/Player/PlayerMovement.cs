@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.EventSystems;
 
 public class PlayerMovement : MonoBehaviour
 {
@@ -76,8 +77,16 @@ public class PlayerMovement : MonoBehaviour
         Debug.Log($"Deselected {transform.name}");
     }
 
+    public bool IsPointerOverUI() => EventSystem.current.IsPointerOverGameObject();
+
     public bool MovePlayer()
     {
+        // The player shouldn't move if the mouse is clicked over a UI element
+        if(IsPointerOverUI())
+        {
+            return false;
+        }
+
         Ray ray = playerCamera.ScreenPointToRay(Input.mousePosition);    // Create a ray at camera mouse position
         if (Physics.Raycast(ray, out RaycastHit raycastHit, 100, floorLayerMask)) // Check if the raycast hit the floor
         {

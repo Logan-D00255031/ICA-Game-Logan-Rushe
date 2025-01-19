@@ -30,6 +30,7 @@ public class ChemicalData : ItemData
     #region Properties
     public ChemicalData FirstProduct { get => firstProduct; set => firstProduct = value; }
     public ChemicalData SecondProduct { get => secondProduct; set => secondProduct = value; }
+    public bool ElectrolysisEnabled { get => enableElectrolysis; set => enableElectrolysis = value; }
 
     #endregion Properties
 }
